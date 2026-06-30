@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bootstrap demo</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+</head>
+
+<body>
+    <h1 class="text-center fs-1 fw-bold text-bg-info rounded-pill w-50 m-auto py-2 mt-3">Login Page</h1>
+    <div class="container shadow-lg border border-black rounded-4 w-50 m-auto p-4 mt-5">
+        <h1 class="fs-3 text-dark text-center mb-3">Flask Auth Demo</h1>
+        <h2 class="text-muted text-center fs-6 mb-3">Enter your details to access dashboard</h2>
+        <form action="{{ url_for('user.login_post') }}" method="POST">
+            <div class="d-flex flex-column">
+                <label class="form-label" for="email">Email:</label>
+                <input class="form-control" type="email" name="email" id="email" placeholder="Enter email">
+            </div>
+
+            <div class="d-flex flex-column">
+                <label class="form-label" for="password">Password:</label>
+                <input class="form-control" type="password" name="password" id="password" placeholder="Enter password">
+            </div>
+
+            <button type="submit" class="btn btn-info my-3">Login</button>
+            <p class="my-4 text-black">Don't have an account? <a href="{{ url_for('home') }}">Register here</a></p>
+        </form>
+    </div>
+
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+        crossorigin="anonymous"></script>
+</body>
+
+</html>

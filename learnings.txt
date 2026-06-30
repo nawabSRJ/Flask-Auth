@@ -1,0 +1,9 @@
+Protected Routes - You can use 2 ways:
+1) Inline checks
+
+if not user:                              # ← if no user in session
+        return redirect(url_for('user.login')) # ← kick them to login
+
+
+2) Proper protected route decorator : This is because you would have to write the inline check in every function, which is code redundancy and exactly where decorator comes in
+
