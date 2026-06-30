@@ -13,3 +13,15 @@ CREATE TABLE users(
     course VARCHAR(50) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- =========================================================
+-- auth_logs 
+-- =========================================================
+
+CREATE TABLE auth_logs(
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    user_email VARCHAR(100),
+    logged_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id)    
+)
