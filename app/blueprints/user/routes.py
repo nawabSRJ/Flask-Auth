@@ -16,8 +16,14 @@ def signup():
     gender = req.form.get('gender')
     password = req.form.get('password')
     confirm_password = req.form.get('confirm_password')
-
+    
     # validation
+    if age < 5 or age > 100:
+        return render_template('signup.html', error='Age must be between 5 and 100')
+
+    if len(password) < 8:
+        return render_template('signup.html', error='Password must be at least 8 characters long')
+
     if password != confirm_password:
         return render_template('signup.html', error='Passwords do NOT match')
     
