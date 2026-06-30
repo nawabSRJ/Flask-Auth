@@ -1,0 +1,3 @@
+- Add required attribute
+- Add phone field
+- Add better validation for phone

@@ -14,20 +14,25 @@
     <div class="container shadow-lg border border-black rounded-4 w-50 m-auto p-4 mt-5">
         <h1 class="fs-3 text-dark text-center mb-3">Flask Auth Demo</h1>
         <h2 class="text-muted text-center fs-6 mb-3">Enter your details to access dashboard</h2>
+        {% if error %}
+        <div class="alert alert-danger">{{ error }}</div>
+        {% endif %}
         <form action="{{ url_for('user.login_post') }}" method="POST">
-            <div class="d-flex flex-column">
-                <label class="form-label" for="email">Email:</label>
-                <input class="form-control" type="email" name="email" id="email" placeholder="Enter email">
-            </div>
+            <form action="{{ url_for('user.login_post') }}" method="POST">
+                <div class="d-flex flex-column">
+                    <label class="form-label" for="email">Email:</label>
+                    <input class="form-control" type="email" name="email" id="email" placeholder="Enter email">
+                </div>
 
-            <div class="d-flex flex-column">
-                <label class="form-label" for="password">Password:</label>
-                <input class="form-control" type="password" name="password" id="password" placeholder="Enter password">
-            </div>
+                <div class="d-flex flex-column">
+                    <label class="form-label" for="password">Password:</label>
+                    <input class="form-control" type="password" name="password" id="password"
+                        placeholder="Enter password">
+                </div>
 
-            <button type="submit" class="btn btn-info my-3">Login</button>
-            <p class="my-4 text-black">Don't have an account? <a href="{{ url_for('home') }}">Register here</a></p>
-        </form>
+                <button type="submit" class="btn btn-info my-3">Login</button>
+                <p class="my-4 text-black">Don't have an account? <a href="{{ url_for('home') }}">Register here</a></p>
+            </form>
     </div>
 
 

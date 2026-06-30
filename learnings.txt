@@ -7,3 +7,9 @@ if not user:                              # ← if no user in session
 
 2) Proper protected route decorator : This is because you would have to write the inline check in every function, which is code redundancy and exactly where decorator comes in
 
+
+
+Why %s on queries?
+Why %s placeholders, not f-strings. cursor.execute("SELECT * FROM users WHERE email = %s", (email,)) looks like string formatting but isn't — pymysql sends the query and the value separately to MySQL, which treats the value purely as data, never as part of the SQL syntax. If you instead wrote f"SELECT * FROM users WHERE email = '{email}'", someone could submit an email like ' OR '1'='1 and manipulate your query — classic SQL injection. Always use %s placeholders with a tuple, never string-build queries with user input.
+with conn.cursor() as cursor: — auto-closes the cursor when the block exits, same pattern as with open(file) as f:.
+finally: conn.close() — ensures the connection closes even if a query throws, so you don't leak open connections every time something errors.

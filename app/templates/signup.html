@@ -28,26 +28,32 @@
                 <!-- Full Name -->
                 <div class="col-md-6 mb-3">
                     <label class="form-label">Full Name</label>
-                    <input type="text" class="form-control" name="name" placeholder="Enter your name">
+                    <input type="text" class="form-control" name="name" placeholder="Enter your name" required minlength="2" maxlength="50">
                 </div>
 
                 <!-- Email -->
                 <div class="col-md-6 mb-3">
                     <label class="form-label">Email</label>
-                    <input type="email" class="form-control" name="email" placeholder="Enter your email">
+                    <input type="email" class="form-control" name="email" placeholder="Enter your email" required maxlength="100">
                 </div>
 
                 <!-- Age -->
                 <div class="col-md-6 mb-3">
                     <label class="form-label">Age</label>
-                    <input type="number" class="form-control" name="age" placeholder="Enter your age">
+                    <input type="number" class="form-control" name="age" placeholder="Enter your age" required min="5" max="100">
+                </div>
+
+                <!-- Phone -->
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Phone</label>
+                    <input type="tel" class="form-control" name="phone" placeholder="Enter your phone number" required pattern="[0-9]{10}" maxlength="10" title="Phone must be exactly 10 digits">
                 </div>
 
                 <!-- Course -->
                 <div class="col-md-6 mb-3">
                     <label class="form-label">Course</label>
-                    <select class="form-select" name="course">
-                        <option selected disabled>Select Course</option>
+                    <select class="form-select" name="course" required>
+                        <option value="" selected disabled>Select Course</option>
                         <option>BCA</option>
                         <option>B.Tech</option>
                         <option>B.Sc</option>
@@ -62,12 +68,12 @@
                     <label class="form-label d-block">Gender</label>
 
                     <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" name="gender" value="Male">
+                        <input class="form-check-input" type="radio" name="gender" value="Male" required>
                         <label class="form-check-label">Male</label>
                     </div>
 
                     <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" name="gender" value="Female">
+                        <input class="form-check-input" type="radio" name="gender" value="Female" required>
                         <label class="form-check-label">Female</label>
                     </div>
                 </div>
@@ -75,13 +81,13 @@
                 <!-- Password -->
                 <div class="col-md-6 mb-3">
                     <label class="form-label">Password</label>
-                    <input type="password" class="form-control" name="password" placeholder="Enter password">
+                    <input type="password" class="form-control" name="password" placeholder="Enter password" required minlength="8">
                 </div>
 
                 <!-- Confirm Password -->
                 <div class="col-md-6 mb-3">
                     <label class="form-label">Confirm Password</label>
-                    <input type="password" class="form-control" name="confirm_password" placeholder="Confirm password">
+                    <input type="password" class="form-control" name="confirm_password" placeholder="Confirm password" required minlength="8">
                 </div>
 
             </div>
