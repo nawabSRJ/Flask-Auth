@@ -1,4 +1,4 @@
-from flask import Flask, Blueprint, render_template, redirect, url_for, session, current_app
+from flask import Flask, Blueprint, render_template, redirect, url_for, session, flash, current_app
 from flask import request as req
 from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -76,6 +76,7 @@ def signup():
         if not allowed_file(file.filename):
             return render_template('signup.html', error='Only image files are allowed (png, jpg, jpeg, gif)')
 
+        flash(f'Flash : Thanks, your file {file.filename} has been uploaded!')
         filename       = secure_filename(file.filename)
         unique_filename = f"{uuid.uuid4().hex}_{filename}"
         # current_app is a flask context variable that gives access to the app's config
