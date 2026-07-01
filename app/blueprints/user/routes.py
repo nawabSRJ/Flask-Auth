@@ -1,14 +1,18 @@
-from flask import Flask, Blueprint, render_template, redirect, url_for, session
+from flask import Flask, Blueprint, render_template, redirect, url_for, session, current_app
 from flask import request as req
 from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.utils import secure_filename
 from app.db import get_db_connection
-
+import uuid
+import os
 
 user_bp = Blueprint('user', __name__)
 
-# user store
-# users_db = {}   # dict of dictionaries, since email is unique, it will be our key
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 # ============= SHARED VALIDATION HELPER =============
@@ -40,16 +44,15 @@ def signup_page():
     return render_template('signup.html')
 
 
-
 @user_bp.post('/signup')
 def signup():
-    name = req.form.get('name')
-    email = req.form.get('email')
-    age = req.form.get('age')
-    course = req.form.get('course')
-    gender = req.form.get('gender')
-    phone = req.form.get('phone')
-    password = req.form.get('password')
+    name             = req.form.get('name')
+    email            = req.form.get('email')
+    age              = req.form.get('age')
+    course           = req.form.get('course')
+    gender           = req.form.get('gender')
+    phone            = req.form.get('phone')
+    password         = req.form.get('password')
     confirm_password = req.form.get('confirm_password')
 
     error, age = validate_user_fields(name, email, age, course, gender, phone)
@@ -65,6 +68,21 @@ def signup():
     if password != confirm_password:
         return render_template('signup.html', error='Passwords do NOT match')
 
+    # ============= HANDLE PHOTO UPLOAD =============
+    photo_filename = None  # default if no file uploaded
+
+    file = req.files.get('the_file')
+    if file and file.filename != '':            # user actually selected a file
+        if not allowed_file(file.filename):
+            return render_template('signup.html', error='Only image files are allowed (png, jpg, jpeg, gif)')
+
+        filename       = secure_filename(file.filename)
+        unique_filename = f"{uuid.uuid4().hex}_{filename}"
+        # current_app is a flask context variable that gives access to the app's config
+        upload_folder  = current_app.config['UPLOAD_FOLDER']
+        file.save(os.path.join(upload_folder, unique_filename))
+        photo_filename = unique_filename         # save this to DB ~ basically saving the path only, not the photo itself
+
     conn = get_db_connection()
     try:
         with conn.cursor() as cursor:
@@ -78,9 +96,9 @@ def signup():
 
             hashed_password = generate_password_hash(password)
             cursor.execute(
-                """INSERT INTO users (name, email, password, phone, age, gender, course)
-                   VALUES (%s, %s, %s, %s, %s, %s, %s)""",
-                (name, email, hashed_password, phone, age, gender, course)
+                """INSERT INTO users (name, email, password, phone, age, gender, course, photo)
+                   VALUES (%s, %s, %s, %s, %s, %s, %s, %s)""",
+                (name, email, hashed_password, phone, age, gender, course, photo_filename)
             )
     except Exception as e:
         return render_template('signup.html', error=f'Exception occurred : {e}')
@@ -97,15 +115,15 @@ def login():
 
 @user_bp.post('/login')
 def login_post():
-    email = req.form.get('email')
+    email    = req.form.get('email')
     password = req.form.get('password')
 
     conn = get_db_connection()
     try:
         with conn.cursor() as cursor:
             cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
-            user=cursor.fetchone()
-    
+            user = cursor.fetchone()
+
     except Exception as e:
         return render_template('login.html', error=f'Exception occurred : {e}')
 
@@ -125,10 +143,10 @@ def login_post():
         'course': user['course'],
         'gender': user['gender'],
         'phone' : user['phone'],
+        'photo' : user['photo'],   # ← include photo in session
     }
 
     return redirect(url_for('user.dashboard'))
-
 
 
 # ---- define the protected route decorator ----
@@ -147,26 +165,27 @@ def dashboard():
     user = session.get('user')
     return render_template('dashboard.html', user=user)
 
+
 @user_bp.post('/logout')
 def logout():
     session.clear()
     return redirect(url_for('user.login'))
 
 
-# ============= USER UPDATION
+# ============= USER UPDATION =============
 @user_bp.post('/update_profile')
 @login_required
 def update_profile():
-    current_email = session['user']['email']  # the user's existing email, from session (trusted, not form input)
+    current_email = session['user']['email']  # trusted, not from form
 
-    name = req.form.get('name')
-    email = req.form.get('email')
-    age = req.form.get('age')
+    name   = req.form.get('name')
+    email  = req.form.get('email')
+    age    = req.form.get('age')
     course = req.form.get('course')
     gender = req.form.get('gender')
-    phone = req.form.get('phone')
+    phone  = req.form.get('phone')
 
-    user = session.get('user')  # fallback context in case we need to re-render dashboard with an error
+    user = session.get('user')  # fallback context for re-rendering dashboard
 
     error, age = validate_user_fields(name, email, age, course, gender, phone)
     if error:
@@ -175,7 +194,6 @@ def update_profile():
     conn = get_db_connection()
     try:
         with conn.cursor() as cursor:
-            # check if the new email/phone is already taken by SOMEONE ELSE
             cursor.execute(
                 "SELECT id FROM users WHERE (email = %s OR phone = %s) AND email != %s",
                 (email, phone, current_email)
@@ -195,7 +213,7 @@ def update_profile():
     finally:
         conn.close()
 
-    # refresh the session with the updated values, since dashboard renders from session, not DB
+    # refresh session with updated values
     session['user'] = {
         'name'  : name,
         'email' : email,
@@ -203,24 +221,27 @@ def update_profile():
         'course': course,
         'gender': gender,
         'phone' : phone,
+        'photo' : user['photo'],   # ← keep existing photo unchanged
     }
 
     return redirect(url_for('user.dashboard'))
 
 
+# ============= USER DELETION =============
 @user_bp.post('/delete')
+@login_required                                # ← added login_required, was missing before
 def delete_profile():
-    current_email = session['user']['email']  # the user's existing email, from session (trusted, not form input)
+    current_email = session['user']['email']
 
     conn = get_db_connection()
     try:
         with conn.cursor() as cursor:
             cursor.execute("DELETE FROM users WHERE email = %s", (current_email,))
     except Exception as e:
-        user = session.get('user')  # fallback context in case we need to re-render dashboard with an error
+        user = session.get('user')
         return render_template('dashboard.html', user=user, error=f'Exception occurred : {e}')
     finally:
         conn.close()
 
-    session.clear()  # log the user out after deletion
-    return redirect(url_for('user.signup'))
+    session.clear()
+    return redirect(url_for('user.signup_page'))

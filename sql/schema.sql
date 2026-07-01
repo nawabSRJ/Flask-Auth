@@ -11,7 +11,8 @@ CREATE TABLE users(
     age INT NOT NULL,
     gender VARCHAR(20) NOT NULL,
     course VARCHAR(50) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    photo VARCHAR(255) DEFAULT NULL,
 );
 
 -- =========================================================

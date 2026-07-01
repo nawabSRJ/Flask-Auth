@@ -73,6 +73,16 @@
                         <small class="text-muted d-block">Course</small>
                         <span class="fw-semibold">{{ user['course'] }}</span>
                     </div>
+                    <div class="col-md-6">
+                        <small class="text-muted d-block mb-1">Photo</small>
+                        <span class="fw-semibold">
+                            {% if user['photo'] %}
+                                <img src="{{ url_for('static', filename='uploads/' + user['photo']) }}" alt="Profile Photo" class="img-thumbnail" style="max-width: 100px; max-height: 100px;">
+                            {% else %}
+                                No photo uploaded
+                            {% endif %}
+                        </span>
+                    </div>
                 </div>
 
                 <button class="btn btn-primary mt-4" type="button" data-bs-toggle="collapse"
